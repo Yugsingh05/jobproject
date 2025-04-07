@@ -17,6 +17,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { useAuthStore } from "@/store/AuthStore";
  
 import { useRouter } from 'next/navigation'
+import Link from "next/link";
 
 // Initialize Firebase Authentication
 const auth = getAuth(app);
@@ -89,23 +90,22 @@ const router = useRouter();
           </Alert>
         )}
 
-        <form onSubmit={formik.handleSubmit}>
-          {/* Email Field */}
+<form onSubmit={formik.handleSubmit} className="space-y-4">
           <TextField
             fullWidth
             id="email"
             name="email"
             label="Email"
+            type="email"
             variant="outlined"
             value={formik.values.email}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={formik.touched.email && Boolean(formik.errors.email)}
             helperText={formik.touched.email && formik.errors.email}
-            className="mb-4"
+            className="rounded-lg"
           />
 
-          {/* Password Field */}
           <TextField
             fullWidth
             id="password"
@@ -118,21 +118,33 @@ const router = useRouter();
             onBlur={formik.handleBlur}
             error={formik.touched.password && Boolean(formik.errors.password)}
             helperText={formik.touched.password && formik.errors.password}
-            className="mb-6"
+            className="rounded-lg"
           />
 
-          {/* Submit Button */}
           <Button
             type="submit"
             variant="contained"
             color="primary"
             fullWidth
-            disabled={formik.isSubmitting} // Disable the button while submitting
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            disabled={formik.isSubmitting}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all"
           >
-            {formik.isSubmitting ? "Signing Up..." : "Sign Up"}
+            {formik.isSubmitting ? "Logging in..." : "Log In"}
           </Button>
         </form>
+
+        <Typography
+          variant="body2"
+          className="text-center text-gray-600 mt-6 tracking-wide"
+        >
+           Already have an account?{" "}
+          <Link
+            href="/login"
+            className="text-blue-600 hover:underline font-medium"
+          >
+            Sign Up
+          </Link>
+        </Typography>
       </Box>
       <ToastContainer/>
     </Container>

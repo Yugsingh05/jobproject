@@ -30,11 +30,7 @@ const Login = () => {
 
   const router = useRouter();
 
-  if(!user.email){
-    router.push('/signup')
-  }
-
-  if(user.email){
+  if(user?.email){
     router.push('/')}
 
 
@@ -80,8 +76,9 @@ const Login = () => {
 
   return (
     <Container
+ 
 
-      className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 to-white w-full"
+      className="flex items-center justify-center min-h-screen bg-gradient-to-br bg-black w-full"
     >
       <Box
         className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md transition-all duration-300"
