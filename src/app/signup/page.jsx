@@ -11,7 +11,7 @@ import {
   Container,
   Alert,
 } from "@mui/material";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { app } from "../FireBase";
 import { toast, ToastContainer } from "react-toastify";
 import { useAuthStore } from "@/store/AuthStore";
@@ -21,15 +21,51 @@ import Link from "next/link";
 
 // Initialize Firebase Authentication
 const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
 
 // SignUp Component
 const SignUp = () => {
   // Formik Setup with Yup Validation
 
-  const {setUser} = useAuthStore();
+
+  const {user,setUser} = useAuthStore();
+
 
 const router = useRouter();
+
+if(user?.email){
+  router.push('/')}
+
+
+
+  const handleGoogleLogin = async () => {
+    signInWithPopup(auth, provider)
+    .then((result) => {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential.accessToken;
+      // The signed-in user info.
+      const user = result.user;
+      // IdP data available using getAdditionalUserInfo(result)
+
+      console.log("user", user);
+      console.log("token", token);
+      console.log("credential", credential);
+      setUser(user); // Store user in Zustand store
+      toast.success("Google login successful!");
+      // ...
+    }).catch((error) => {
+     
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      const email = error.customData.email;
+   
+      const credential = GoogleAuthProvider.credentialFromError(error);
+      console.error("Google login error:", errorMessage);
+      // ...
+    });
+  }
 
 
 
@@ -116,7 +152,9 @@ const router = useRouter();
             value={formik.values.password}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            error={formik.touched.password && Boolean(formik.errors.password)}
+            error={
+              formik.touched.password && Boolean(formik.errors.password)
+            }
             helperText={formik.touched.password && formik.errors.password}
             className="rounded-lg"
           />
@@ -132,6 +170,32 @@ const router = useRouter();
             {formik.isSubmitting ? "Logging in..." : "Log In"}
           </Button>
         </form>
+
+        <Button
+          variant="outlined"
+          fullWidth
+          onClick={handleGoogleLogin}
+          startIcon={
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png"
+              alt="Google"
+              className="w-5 h-5"
+            />
+          }
+          sx={{
+            mt: 2,
+            textTransform: "none",
+            borderColor: "#d1d5db",
+            color: "#374151",
+            "&:hover": {
+              backgroundColor: "#f3f4f6",
+              borderColor: "#d1d5db",
+            },
+          }}
+          className="font-semibold py-3 px-4 rounded-lg transition-all"
+        >
+          Continue with Google
+        </Button>
 
         <Typography
           variant="body2"

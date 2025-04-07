@@ -11,7 +11,7 @@ import {
   Container,
   Alert,
 } from "@mui/material";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { app } from "../FireBase";
 import { toast, ToastContainer } from "react-toastify";
 import Link from "next/link";
@@ -21,6 +21,10 @@ import { useRouter } from 'next/navigation'
 
 
 const auth = getAuth(app);
+
+auth.languageCode = "en"; // Set the language code to English
+
+const provider = new GoogleAuthProvider();
 
 
 
@@ -70,16 +74,41 @@ const Login = () => {
   });
 
 
+  const handleGoogleLogin = async () => {
+    signInWithPopup(auth, provider)
+    .then((result) => {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential.accessToken;
+      // The signed-in user info.
+      const user = result.user;
+      // IdP data available using getAdditionalUserInfo(result)
+
+      console.log("user", user);
+      console.log("token", token);
+      console.log("credential", credential);
+      setUser(user); // Store user in Zustand store
+      toast.success("Google login successful!");
+      // ...
+    }).catch((error) => {
+     
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      const email = error.customData.email;
+   
+      const credential = GoogleAuthProvider.credentialFromError(error);
+      console.error("Google login error:", errorMessage);
+      // ...
+    });
+  }
+
+
 
   console.log("user", user);
   
 
   return (
-    <Container
- 
-
-      className="flex items-center justify-center min-h-screen bg-gradient-to-br bg-black w-full"
-    >
+    <Container className="flex items-center justify-center min-h-screen bg-gradient-to-br bg-black w-full">
       <Box
         className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md transition-all duration-300"
         sx={{
@@ -131,7 +160,9 @@ const Login = () => {
             value={formik.values.password}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            error={formik.touched.password && Boolean(formik.errors.password)}
+            error={
+              formik.touched.password && Boolean(formik.errors.password)
+            }
             helperText={formik.touched.password && formik.errors.password}
             className="rounded-lg"
           />
@@ -147,6 +178,32 @@ const Login = () => {
             {formik.isSubmitting ? "Logging in..." : "Log In"}
           </Button>
         </form>
+
+        <Button
+          variant="outlined"
+          fullWidth
+          onClick={handleGoogleLogin}
+          startIcon={
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png"
+              alt="Google"
+              className="w-5 h-5"
+            />
+          }
+          sx={{
+            mt: 2,
+            textTransform: "none",
+            borderColor: "#d1d5db",
+            color: "#374151",
+            "&:hover": {
+              backgroundColor: "#f3f4f6",
+              borderColor: "#d1d5db",
+            },
+          }}
+          className="font-semibold py-3 px-4 rounded-lg transition-all"
+        >
+          Continue with Google
+        </Button>
 
         <Typography
           variant="body2"
@@ -166,5 +223,6 @@ const Login = () => {
     </Container>
   );
 };
+
 
 export default Login;
